@@ -1,6 +1,7 @@
 package com.transferproject.controller;
 
 import com.transferproject.persistence.model.User;
+import com.transferproject.persistence.model.dto.NewUserDto;
 import com.transferproject.persistence.model.dto.UserDto;
 import com.transferproject.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +20,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User createUser(@RequestBody UserDto newUser) {
+    public UserDto createUser(@RequestBody NewUserDto newUser) {
         return userService.createUser(newUser);
     }
 

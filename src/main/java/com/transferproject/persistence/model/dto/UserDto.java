@@ -1,22 +1,34 @@
 package com.transferproject.persistence.model.dto;
 
+import com.transferproject.persistence.model.User;
+import com.transferproject.persistence.model.UserType;
 import org.springframework.data.annotation.Id;
 
 public class UserDto {
 
-    @Id
     private String id;
     private String name;
     private String document;
     private String email;
-    private String password;
+    private UserType type;
+    private double balance;
 
-    public UserDto(String id, String name, String document, String email, String password) {
+    public UserDto(String id, String name, String document, String email, UserType type,double balance) {
         this.id = id;
         this.name = name;
         this.document = document;
         this.email = email;
-        this.password = password;
+        this.type = type;
+        this.balance = balance;
+    }
+
+    public UserDto(User user) {
+        this.id = user.getId();
+        this.name = user.getName();
+        this.document = user.getDocument();
+        this.email = user.getEmail();
+        this.type = user.getType();
+        this.balance = user.getBalance();
     }
 
     public String getId() {
@@ -51,11 +63,19 @@ public class UserDto {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public UserType getType() {
+        return type;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setType(UserType type) {
+        this.type = type;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
     }
 }

@@ -1,11 +1,9 @@
-package com.transferproject.persistence.model;
+package com.transferproject.persistence.model.dto;
 
-import com.transferproject.persistence.model.dto.NewUserDto;
+import com.transferproject.persistence.model.UserType;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document("users")
-public class User {
+public class NewUserDto {
 
     @Id
     private String id;
@@ -13,31 +11,15 @@ public class User {
     private String document;
     private String email;
     private String password;
-
     private UserType type;
-    private double balance;
 
-    public User() {
-    }
-
-    public User(String id, String name, String document, String email, String password, UserType type, double balance) {
+    public NewUserDto(String id, String name, String document, String email, String password, UserType type) {
         this.id = id;
         this.name = name;
         this.document = document;
         this.email = email;
         this.password = password;
         this.type = type;
-        this.balance = balance;
-    }
-
-    public User(NewUserDto newUserDto) {
-        this.id = newUserDto.getId();
-        this.name = newUserDto.getName();
-        this.document = newUserDto.getDocument();
-        this.email = newUserDto.getEmail();
-        this.password = newUserDto.getPassword();
-        this.type = newUserDto.getType();
-        this.balance = 0.00;
     }
 
     public String getId() {
@@ -86,13 +68,5 @@ public class User {
 
     public void setType(UserType type) {
         this.type = type;
-    }
-
-    public double getBalance() {
-        return balance;
-    }
-
-    public void setBalance(double balance) {
-        this.balance = balance;
     }
 }
