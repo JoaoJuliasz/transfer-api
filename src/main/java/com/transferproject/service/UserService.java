@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.ErrorResponseException;
 import org.springframework.web.server.ResponseStatusException;
+import reactor.core.publisher.Mono;
 
 @Service
 public class UserService {
@@ -58,6 +60,18 @@ public class UserService {
 
     private UserDto convertToDto(User user) {
         return new UserDto(user);
+    }
+
+    public void deleteUser(String id) {
+        User user = userRepository.findById(id).block();
+
+        if(user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id '" + id + "' not exits");
+        }
+
+        userRepository.deleteById(id)
+                .hasElement()
+                .blockOptional();
     }
 
 }
