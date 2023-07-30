@@ -1,5 +1,6 @@
 package com.transferproject.service;
 
+import com.transferproject.persistence.model.Deposit;
 import com.transferproject.persistence.model.User;
 import com.transferproject.persistence.model.dto.NewUserDto;
 import com.transferproject.persistence.model.dto.UserDto;
@@ -42,7 +43,6 @@ public class UserService {
 
 
     public UserDto createUser(NewUserDto newUser) {
-        emailAlreadyExists(newUser.getEmail());
         if (emailAlreadyExists(newUser.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is already being used");
         }
@@ -62,16 +62,40 @@ public class UserService {
         return new UserDto(user);
     }
 
-    public void deleteUser(String id) {
-        User user = userRepository.findById(id).block();
+    private User findUser(String id) {
+        return userRepository.findById(id).block();
+    }
 
-        if(user == null) {
+    public void deleteUser(String id) {
+        User user = findUser(id);
+
+        if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id '" + id + "' not exits");
         }
 
         userRepository.deleteById(id)
                 .hasElement()
                 .blockOptional();
+    }
+
+    public String transferToUser(Deposit deposit) {
+        User sender = findUser(deposit.getSender());
+        User receiver = findUser(deposit.getReceiver());
+        if (sender == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Sender user does not exist");
+        }
+        if (receiver == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Receiver user does not exist");
+        }
+        if (sender.getBalance() - deposit.getValue() < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds");
+        }
+        sender.setBalance(sender.getBalance() - deposit.getValue());
+        receiver.setBalance(receiver.getBalance() + deposit.getValue());
+
+        userRepository.save(sender).block();
+        userRepository.save(receiver).block();
+        return "Deposit of $" + deposit.getValue() + " made  from " + sender.getName() + ", to " + receiver.getName();
     }
 
 }
