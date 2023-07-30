@@ -61,7 +61,7 @@ public class UserService {
         return new UserDto(user);
     }
 
-    private User findUser(String id) {
+    public User findUser(String id) {
         return userRepository.findById(id).block();
     }
 
@@ -77,48 +77,19 @@ public class UserService {
                 .blockOptional();
     }
 
-    private void checkUser(User user, String message) {
+    public void checkUser(User user, String message) {
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, message);
         }
     }
 
-    private void checkBalance(User sender, double value) {
+    public void checkBalance(User sender, double value) {
         if (sender.getBalance() - value < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds");
         }
     }
 
-    private void saveUser(User user) {
+    public void saveUser(User user) {
         userRepository.save(user).block();
-    }
-
-    public String transferToUser(Deposit deposit) {
-        User sender = findUser(deposit.getSender());
-        User receiver = findUser(deposit.getReceiver());
-
-        checkUser(sender, "Sender user does not exist");
-        checkUser(receiver, "Receiver user does not exist");
-        checkBalance(sender, deposit.getValue());
-
-        sender.setBalance(sender.getBalance() - deposit.getValue());
-        receiver.setBalance(receiver.getBalance() + deposit.getValue());
-
-        saveUser(sender);
-        saveUser(receiver);
-
-        return "Deposit of $" + deposit.getValue() + " made  from " + sender.getName() + ", to " + receiver.getName();
-    }
-
-    public String depositIntoAccount(DepositDto deposit) {
-        if (deposit.getValue() < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Deposit value must be bigger than 0");
-        }
-        User receiver = findUser(deposit.getReceiver());
-        checkUser(receiver, "User does not exist");
-        receiver.setBalance(receiver.getBalance() + deposit.getValue());
-        saveUser(receiver);
-        return "Value of $" + deposit.getValue() + " was deposited into" + receiver.getName() + " account";
-
     }
 }

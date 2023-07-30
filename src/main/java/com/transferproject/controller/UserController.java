@@ -28,29 +28,11 @@ public class UserController {
         return userService.createUser(newUser);
     }
 
-    @PostMapping("/transfer")
-    public ResponseEntity<Map<String, String>> transferToUser(@RequestBody Deposit deposit) {
-        String response = userService.transferToUser(deposit);
-        return convertToResponse(response);
-    }
-
-    @PostMapping("/deposit")
-    public ResponseEntity<Map<String, String>> depositToUser(@RequestBody DepositDto deposit) {
-        String response = userService.depositIntoAccount(deposit);
-        return convertToResponse(response);
-    }
-
     @DeleteMapping(value = "/{id}")
     public boolean deleteUser(@PathVariable("id") String id) {
         userService.deleteUser(id);
         return true;
     }
 
-    private ResponseEntity<Map<String, String>> convertToResponse(String message) {
-        HttpHeaders responseHeaders = new HttpHeaders();
-        Map<String, String> response =  new HashMap<>() {{
-            put("message", message);
-        }};
-        return new ResponseEntity<>(response, responseHeaders, HttpStatus.OK);
-    }
+
 }
