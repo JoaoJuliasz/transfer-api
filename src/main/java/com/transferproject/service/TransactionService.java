@@ -4,7 +4,6 @@ import com.transferproject.persistence.model.Deposit;
 import com.transferproject.persistence.model.User;
 import com.transferproject.persistence.model.dto.DepositDto;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,11 +27,12 @@ public class TransactionService {
     }
 
     public String transferToUser(Deposit deposit) {
-        User sender = userService.findUser(deposit.getSender());
-        User receiver = userService.findUser(deposit.getReceiver());
+        User sender = userService.findUserById(deposit.getSender());
+        User receiver = userService.findUserById(deposit.getReceiver());
 
         userService.checkUser(sender, "Sender user does not exist");
         userService.checkUser(receiver, "Receiver user does not exist");
+        userService.checkUserType(sender);
         userService.checkBalance(sender, deposit.getValue());
 
         sender.setBalance(sender.getBalance() - deposit.getValue());
@@ -49,7 +49,7 @@ public class TransactionService {
         if (deposit.getValue() < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Deposit value must be bigger than 0");
         }
-        User receiver = userService.findUser(deposit.getReceiver());
+        User receiver = userService.findUserById(deposit.getReceiver());
         userService.checkUser(receiver, "User does not exist");
         receiver.setBalance(receiver.getBalance() + deposit.getValue());
         userService.saveUser(receiver);

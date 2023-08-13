@@ -1,17 +1,11 @@
 package com.transferproject.controller;
 
-import com.transferproject.persistence.model.Deposit;
-import com.transferproject.persistence.model.dto.DepositDto;
+import com.transferproject.persistence.model.ChangePassword;
+import com.transferproject.persistence.model.Success;
 import com.transferproject.persistence.model.dto.NewUserDto;
 import com.transferproject.persistence.model.dto.UserDto;
 import com.transferproject.service.UserService;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -23,9 +17,19 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping(value = "{id}")
+    public UserDto findUser(@PathVariable String id) {
+        return userService.convertFoundUser(id);
+    }
+
     @PostMapping
     public UserDto createUser(@RequestBody NewUserDto newUser) {
         return userService.createUser(newUser);
+    }
+
+    @PostMapping(value = "change-password")
+    public Success changeUserPassword(@RequestBody ChangePassword changePassword) {
+        return userService.changePassword(changePassword);
     }
 
     @DeleteMapping(value = "/{id}")

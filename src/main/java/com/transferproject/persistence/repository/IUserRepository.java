@@ -8,11 +8,14 @@ import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
-    public interface IUserRepository extends ReactiveMongoRepository<User, String> {
+public interface IUserRepository extends ReactiveMongoRepository<User, String> {
 
     @Query("{ 'email' : ?0 }")
     Mono<User> findUserEmail(String email);
 
     @Query("{ 'document' : ?0 }")
     Mono<User> findUserDocument(String document);
+
+    @Query("{ 'name': ?0 }")
+    Mono<User> findUserByName(String name);
 }

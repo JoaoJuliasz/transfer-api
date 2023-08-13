@@ -1,7 +1,6 @@
 package com.transferproject.service;
 
-import com.transferproject.persistence.model.Deposit;
-import com.transferproject.persistence.model.User;
+import com.transferproject.persistence.model.*;
 import com.transferproject.persistence.model.dto.DepositDto;
 import com.transferproject.persistence.model.dto.NewUserDto;
 import com.transferproject.persistence.model.dto.UserDto;
@@ -61,20 +60,49 @@ public class UserService {
         return new UserDto(user);
     }
 
-    public User findUser(String id) {
-        return userRepository.findById(id).block();
+    public UserDto convertFoundUser(String id) {
+        User user = findUserById(id);
+        return convertToDto(user);
     }
 
-    public void deleteUser(String id) {
-        User user = findUser(id);
+    private User findUserByName(String name) {
+        User foundUser = userRepository.findUserByName(name).block();
+        if (foundUser == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with name '" + name + "' not exits");
+        }
 
-        if (user == null) {
+        return foundUser;
+    }
+
+    public User findUserById(String id) {
+        User foundUser = userRepository.findById(id).block();
+
+        if (foundUser == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id '" + id + "' not exits");
         }
 
-        userRepository.deleteById(id)
+        return foundUser;
+    }
+
+    public void deleteUser(String id) {
+        User user = findUserById(id);
+        userRepository.deleteById(user.getId())
                 .hasElement()
                 .blockOptional();
+    }
+    
+    public Success changePassword(ChangePassword changePassword) {
+        User user = findUserByName(changePassword.getUserName());
+        validatePassword(user.getPassword(), changePassword.getOldPassword());
+        user.setPassword(encryptPassword(changePassword.getNewPassword()));
+        saveUser(user);
+        return new Success("Password changed!");
+    }
+
+    private void validatePassword(String userPassword, String password) {
+        if(!passwordEncoder.matches(password, userPassword)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Old password is incorrect");
+        }
     }
 
     public void checkUser(User user, String message) {
@@ -86,6 +114,12 @@ public class UserService {
     public void checkBalance(User sender, double value) {
         if (sender.getBalance() - value < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds");
+        }
+    }
+
+    public void checkUserType(User sender) {
+        if(sender.getType() == UserType.SELLER) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sellers can only receive transfers");
         }
     }
 

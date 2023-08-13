@@ -1,9 +1,9 @@
 package com.transferproject.controller;
 
 import com.transferproject.persistence.model.Deposit;
+import com.transferproject.persistence.model.Success;
 import com.transferproject.persistence.model.dto.DepositDto;
 import com.transferproject.service.TransactionService;
-import com.transferproject.service.UserService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,22 +26,20 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, String>> transferToUser(@RequestBody Deposit deposit) {
+    public ResponseEntity<Success> transferToUser(@RequestBody Deposit deposit) {
         String response = transactionService.transferToUser(deposit);
         return convertToResponse(response);
     }
 
     @PostMapping("/account")
-    public ResponseEntity<Map<String, String>> depositToUser(@RequestBody DepositDto deposit) {
+    public ResponseEntity<Success> depositToUser(@RequestBody DepositDto deposit) {
         String response = transactionService.depositIntoAccount(deposit);
         return convertToResponse(response);
     }
 
-    private ResponseEntity<Map<String, String>> convertToResponse(String message) {
+    private ResponseEntity<Success> convertToResponse(String message) {
         HttpHeaders responseHeaders = new HttpHeaders();
-        Map<String, String> response =  new HashMap<>() {{
-            put("message", message);
-        }};
+        Success response = new Success(message);
         return new ResponseEntity<>(response, responseHeaders, HttpStatus.OK);
     }
 
